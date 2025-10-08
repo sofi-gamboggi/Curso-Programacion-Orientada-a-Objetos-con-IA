@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Ping Pong</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #222;
+    color: #fff;
+    font-family: Arial, sans-serif;
+  }
+  canvas {
+    background: #000;
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #fff;
+  }
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+// Pelota
+let ballRadius = 10;
+let x = canvas.width / 2;
+let y = canvas.height / 2;
+let dx = 4;
+let dy = -4;
+
+// Paleta
+let paddleHeight = 10;
+let paddleWidth = 100;
+let paddleX = (canvas.width - paddleWidth) / 2;
+
+// Controles
+let rightPressed = false;
+let leftPressed = false;
+
+// Puntos
+let score = 0;
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if(e.key === "Right" || e.key === "ArrowRight") {
+        rightPressed = true;
+    }
+    else if(e.key === "Left" || e.key === "ArrowLeft") {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if(e.key === "Right" || e.key === "ArrowRight") {
+        rightPressed = false;
+    }
+    else if(e.key === "Left" || e.key === "ArrowLeft") {
+        leftPressed = false;
+    }
+}
+
+// Dibujar pelota
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.closePath();
+}
+
+// Dibujar paleta
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.closePath();
+}
+
+// Dibujar puntaje
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#fff";
+    ctx.fillText("Puntos: "+score, 8, 20);
+}
+
+// Dibujar todo
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBall();
+    drawPaddle();
+    drawScore();
+
+    // Rebote con paredes
+    if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+    }
+    if(y + dy < ballRadius) {
+        dy = -dy;
+    } else if(y + dy > canvas.height - ballRadius) {
+        // Rebote con paleta
+        if(x > paddleX && x < paddleX + paddleWidth) {
+            dy = -dy;
+            score++;
+        } else {
+            alert("¡Game Over! Tu puntaje: " + score);
+            document.location.reload();
+        }
+    }
+
+    // Mover paleta
+    if(rightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += 7;
+    }
+    if(leftPressed && paddleX > 0) {
+        paddleX -= 7;
+    }
+
+    x += dx;
+    y += dy;
+    requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>
